@@ -2,15 +2,75 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>zs</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <h1>85°C</h1>
+    <div class="credentials ">
+      <div>
+        <label for="clientkey">Client Key </label>
+        <input id="clientkey" name="clientkey" value="" style="color=#EEEEEE">
+      </div>
+      <br />
+      <div>
+        <label for="clientsecret ">Client Secret</label>
+        <input id="clientsecret" name="clientsecret" value="" style="color=#EEEEEE">
+      </div>
+    </div>
+    <h2 id="msg">点击api按钮</h2>
+    <button type="button" id="api">api</button>
   </body>
+  <script type="text/javascript">
+    const btn = document.getElementById('api');
+    const tip = document.getElementById('msg');
+    btn.addEventListener('click', () => {
+      tip.innerHTML = '正在请求数据，请稍等...';
+      btn.style.visibility = "hidden";
+      const url = 'http://api.tubaogps.com/v1/shipments/active?rows=20&clientkey=asdfadsfdf&_t=1498143192540&sign=cc1f7d00db0506a52a619ce9e02dc881'
+      const data = {
+        rows: 20,
+        clientkey: 'asdfadsfdf',
+        _t: '1498140714859',
+        sign: '3b568d6adef4b31d08a3fe69877d27de',
+      }
+      const cb = (msg) => {
+        tip.innerHTML = `返回消息：${msg.message}`
+        btn.style.visibility = "visible";
+        console.log(msg)
+      }
+
+      zAJAX('get', url, data, cb)
+    })
+
+    function objToParams (obj) {
+      var list = [];
+      for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          list.push(key + '=' + obj[key]);
+        }
+      }
+      return list.join('&');
+    }
+
+    function zAJAX (type, url, datas, func) {
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open(type.toUpperCase(), url, true);
+      xmlhttp.setRequestHeader("Content-type", "application/json");
+      xmlhttp.send();
+
+      var t1 = setTimeout(function() {
+        func({result: 0, message: '请求超时，请稍后重试！'});
+        xmlhttp.abort();
+      },30000);
+      
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+          clearTimeout(t1)
+          func(JSON.parse(xmlhttp.responseText));
+        }
+      }
+    }
+  </script>
 
   <script>
     // You can also require other files to run in this process
